@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import 'package:iceberg_app/src/core/theme/iceberg_theme.dart';
 import 'package:iceberg_app/src/features/products/domain/product.dart';
 import 'package:iceberg_app/src/features/orders/domain/order.dart';
@@ -21,9 +22,19 @@ class _ModifierModalState extends State<ModifierModal> {
   int _quantity = 1;
   final Map<String, int> _modifiers = {};
 
-  final List<String> _availableVessels = ['Cup', 'Sugar Cone', 'Waffle Cone (+0.50)'];
-  final List<String> _availableFlavors = ['Vanilla', 'Chocolate', 'Strawberry', 'Mint Chip', 'Cookies & Cream'];
-  
+  final List<String> _availableVessels = [
+    'Cup',
+    'Sugar Cone',
+    'Waffle Cone (+â‚±0.50)',
+  ];
+  final List<String> _availableFlavors = [
+    'Vanilla',
+    'Chocolate',
+    'Strawberry',
+    'Mint Chip',
+    'Cookies & Cream',
+  ];
+
   String _selectedVessel = 'Cup';
 
   void _incrementFlavor(String flavor) {
@@ -47,13 +58,10 @@ class _ModifierModalState extends State<ModifierModal> {
     double basePrice = widget.product.price;
     if (_selectedVessel.contains('+')) {
       // Basic mock extraction of upcharge purely for demonstration
-      basePrice += 0.50; 
+      basePrice += 0.50;
     }
-    
-    final Map<String, int> finalModifiers = {
-      _selectedVessel: 1,
-      ..._modifiers,
-    };
+
+    final Map<String, int> finalModifiers = {_selectedVessel: 1, ..._modifiers};
 
     final orderItem = OrderItem(
       productId: widget.product.id,
@@ -90,7 +98,7 @@ class _ModifierModalState extends State<ModifierModal> {
                   ),
                 ),
                 Text(
-                  '\$${widget.product.price.toStringAsFixed(2)}',
+                  formatCurrency(widget.product.price),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: IcebergTheme.vibrantRosePink,
                   ),
@@ -98,8 +106,11 @@ class _ModifierModalState extends State<ModifierModal> {
               ],
             ),
             const SizedBox(height: 24),
-            
-            Text('1. Choose Vessel', style: Theme.of(context).textTheme.titleLarge),
+
+            Text(
+              '1. Choose Vessel',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -116,12 +127,17 @@ class _ModifierModalState extends State<ModifierModal> {
                 );
               }).toList(),
             ),
-            
+
             const SizedBox(height: 24),
-            Text('2. Scoops & Flavors', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              '2. Scoops & Flavors',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 12),
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.3,
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   children: _availableFlavors.map((flavor) {
@@ -130,15 +146,32 @@ class _ModifierModalState extends State<ModifierModal> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: [
-                          Expanded(child: Text(flavor, style: Theme.of(context).textTheme.bodyLarge)),
+                          Expanded(
+                            child: Text(
+                              flavor,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
                           IconButton(
                             onPressed: () => _decrementFlavor(flavor),
-                            icon: const Icon(Icons.remove_circle_outline, color: IcebergTheme.darkSlate),
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: IcebergTheme.darkSlate,
+                            ),
                           ),
-                          Text('$count', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(
+                            '$count',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           IconButton(
                             onPressed: () => _incrementFlavor(flavor),
-                            icon: const Icon(Icons.add_circle, color: IcebergTheme.vibrantRosePink),
+                            icon: const Icon(
+                              Icons.add_circle,
+                              color: IcebergTheme.vibrantRosePink,
+                            ),
                           ),
                         ],
                       ),
@@ -147,7 +180,7 @@ class _ModifierModalState extends State<ModifierModal> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +196,13 @@ class _ModifierModalState extends State<ModifierModal> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('Qty: $_quantity', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Qty: $_quantity',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle, size: 32),
@@ -177,7 +216,7 @@ class _ModifierModalState extends State<ModifierModal> {
                   child: const Text('Add to Order'),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

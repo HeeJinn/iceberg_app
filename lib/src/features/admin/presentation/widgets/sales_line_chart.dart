@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../application/admin_analytics_controller.dart';
 
@@ -22,11 +23,15 @@ class SalesLineChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Weekly Sales Trend',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Weekly Sales Trend',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 8),
-            Text('Last 7 days performance',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+            Text(
+              'Last 7 days performance',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
             const SizedBox(height: 24),
             SizedBox(
               height: 220,
@@ -36,10 +41,8 @@ class SalesLineChart extends StatelessWidget {
                     show: true,
                     drawVerticalLine: false,
                     horizontalInterval: maxY / 4 < 1 ? 1 : maxY / 4,
-                    getDrawingHorizontalLine: (value) => FlLine(
-                      color: Colors.grey.shade200,
-                      strokeWidth: 1,
-                    ),
+                    getDrawingHorizontalLine: (value) =>
+                        FlLine(color: Colors.grey.shade200, strokeWidth: 1),
                   ),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
@@ -47,9 +50,13 @@ class SalesLineChart extends StatelessWidget {
                         showTitles: true,
                         reservedSize: 50,
                         getTitlesWidget: (value, meta) {
-                          return Text('\$${value.toInt()}',
-                              style: TextStyle(
-                                  fontSize: 11, color: Colors.grey.shade600));
+                          return Text(
+                            formatCompactCurrency(value),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -64,7 +71,9 @@ class SalesLineChart extends StatelessWidget {
                               child: Text(
                                 DateFormat('E').format(weeklyTrend[index].date),
                                 style: TextStyle(
-                                    fontSize: 11, color: Colors.grey.shade600),
+                                  fontSize: 11,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
                             );
                           }
@@ -73,9 +82,11 @@ class SalesLineChart extends StatelessWidget {
                       ),
                     ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   minX: 0,
@@ -94,11 +105,11 @@ class SalesLineChart extends StatelessWidget {
                         show: true,
                         getDotPainter: (spot, percent, barData, index) =>
                             FlDotCirclePainter(
-                          radius: 4,
-                          color: IcebergTheme.white,
-                          strokeWidth: 2,
-                          strokeColor: IcebergTheme.vibrantRosePink,
-                        ),
+                              radius: 4,
+                              color: IcebergTheme.white,
+                              strokeWidth: 2,
+                              strokeColor: IcebergTheme.vibrantRosePink,
+                            ),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
@@ -118,7 +129,7 @@ class SalesLineChart extends StatelessWidget {
                       getTooltipItems: (spots) {
                         return spots.map((spot) {
                           return LineTooltipItem(
-                            '\$${spot.y.toStringAsFixed(2)}',
+                            formatCurrency(spot.y),
                             const TextStyle(
                               color: IcebergTheme.white,
                               fontWeight: FontWeight.bold,

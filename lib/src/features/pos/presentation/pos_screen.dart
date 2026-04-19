@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/utils/currency.dart';
 import '../../../core/theme/iceberg_theme.dart';
 import '../../../core/layout/responsive_layout.dart';
 import '../../products/data/product_repository.dart';
@@ -56,12 +57,12 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(-5, 0),
-                )
+                ),
               ],
             ),
             child: _buildCartPanel(context, isMobile: false),
           ),
-        )
+        ),
       ],
     );
   }
@@ -88,15 +89,18 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               child: Container(
                 height: 80,
                 decoration: BoxDecoration(
-                    color: IcebergTheme.darkSlate,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(24)),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, -5))
-                    ]),
+                  color: IcebergTheme.darkSlate,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,63 +110,74 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: const BoxDecoration(
-                              color: IcebergTheme.vibrantRosePink,
-                              shape: BoxShape.circle),
-                          child: Text('${cart.items.length}',
-                              style: const TextStyle(
-                                  color: IcebergTheme.white,
-                                  fontWeight: FontWeight.bold)),
+                            color: IcebergTheme.vibrantRosePink,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${cart.items.length}',
+                            style: const TextStyle(
+                              color: IcebergTheme.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 16),
-                        const Text('View Cart',
-                            style: TextStyle(
-                                color: IcebergTheme.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+                        const Text(
+                          'View Cart',
+                          style: TextStyle(
+                            color: IcebergTheme.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
-                    Text('\$${cart.totalPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            color: IcebergTheme.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
+                    Text(
+                      formatCurrency(cart.totalPrice),
+                      style: const TextStyle(
+                        color: IcebergTheme.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
 
   void _showMobileCartSheet(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.85,
-            decoration: const BoxDecoration(
-              color: IcebergTheme.white,
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2)),
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: const BoxDecoration(
+            color: IcebergTheme.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                Expanded(child: _buildCartPanel(context, isMobile: true)),
-              ],
-            ),
-          );
-        });
+              ),
+              Expanded(child: _buildCartPanel(context, isMobile: true)),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMainColumn(BuildContext context, {required bool isMobile}) {
@@ -204,14 +219,21 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Welcome back,',
-                              style: TextStyle(
-                                  color: Colors.grey.shade500, fontSize: 12)),
-                          Text(auth.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: IcebergTheme.darkSlate)),
+                          Text(
+                            'Welcome back,',
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            auth.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: IcebergTheme.darkSlate,
+                            ),
+                          ),
                         ],
                       ),
                   ],
@@ -220,8 +242,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   children: [
                     if (auth != null && auth.isAdmin)
                       IconButton(
-                        icon: const Icon(Icons.admin_panel_settings,
-                            color: IcebergTheme.darkSlate),
+                        icon: const Icon(
+                          Icons.admin_panel_settings,
+                          color: IcebergTheme.darkSlate,
+                        ),
                         onPressed: () => context.go('/admin'),
                         tooltip: 'Admin Dashboard',
                       ),
@@ -234,19 +258,21 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       ),
                     ] else ...[
                       IconButton(
-                        icon: const Icon(Icons.access_time,
-                            color: IcebergTheme.darkSlate),
+                        icon: const Icon(
+                          Icons.access_time,
+                          color: IcebergTheme.darkSlate,
+                        ),
                         onPressed: () => context.go('/clock-out'),
                       ),
-                    ]
+                    ],
                   ],
-                )
+                ),
               ],
             ),
           ),
         ),
 
-        // Category Filter Tabs — dynamic from CategoryRepository
+        // Category Filter Tabs â€” dynamic from CategoryRepository
         SizedBox(
           height: 44,
           child: ListView(
@@ -254,8 +280,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 24),
             children: [
               _buildCategoryChip('All', null, isMobile),
-              ...categories.map((cat) =>
-                  _buildCategoryChip(cat, cat, isMobile)),
+              ...categories.map(
+                (cat) => _buildCategoryChip(cat, cat, isMobile),
+              ),
             ],
           ),
         ),
@@ -268,18 +295,24 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.icecream,
-                          size: 64,
-                          color: IcebergTheme.creamPink),
+                      Icon(
+                        Icons.icecream,
+                        size: 64,
+                        color: IcebergTheme.creamPink,
+                      ),
                       const SizedBox(height: 16),
-                      const Text('No products in this category',
-                          style: TextStyle(color: Colors.grey)),
+                      const Text(
+                        'No products in this category',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
                 )
               : GridView.builder(
                   padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 12 : 24, vertical: 8),
+                    horizontal: isMobile ? 12 : 24,
+                    vertical: 8,
+                  ),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: isMobile
                         ? 2
@@ -299,8 +332,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     );
   }
 
-  Widget _buildCategoryChip(
-      String label, String? category, bool isMobile) {
+  Widget _buildCategoryChip(String label, String? category, bool isMobile) {
     final isSelected = _selectedCategory == category;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
@@ -311,7 +343,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         selectedColor: IcebergTheme.creamPink,
         checkmarkColor: IcebergTheme.vibrantRosePink,
         labelStyle: TextStyle(
-          color: isSelected ? IcebergTheme.vibrantRosePink : Colors.grey.shade700,
+          color: isSelected
+              ? IcebergTheme.vibrantRosePink
+              : Colors.grey.shade700,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           fontSize: isMobile ? 12 : 14,
         ),
@@ -320,11 +354,14 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   }
 
   Widget _buildProductCard(
-      BuildContext context, Product product, bool isMobile) {
+    BuildContext context,
+    Product product,
+    bool isMobile,
+  ) {
     // Check if product has a base64 image
-    final hasImage = product.imageUrl.isNotEmpty &&
-        (product.imageUrl.startsWith('data:') ||
-            product.imageUrl.length > 200);
+    final hasImage =
+        product.imageUrl.isNotEmpty &&
+        (product.imageUrl.startsWith('data:') || product.imageUrl.length > 200);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -338,11 +375,13 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               onAddToCart: (OrderItem orderItem) {
                 ref.read(cartControllerProvider.notifier).addItem(orderItem);
                 if (isMobile) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('${product.title} added to cart'),
-                    duration: const Duration(milliseconds: 500),
-                    behavior: SnackBarBehavior.floating,
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.title} added to cart'),
+                      duration: const Duration(milliseconds: 500),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 }
               },
             ),
@@ -370,21 +409,28 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    product.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('\$${product.price.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                              color: IcebergTheme.vibrantRosePink,
-                              fontWeight: FontWeight.bold)),
+                      Text(
+                        formatCurrency(product.price),
+                        style: const TextStyle(
+                          color: IcebergTheme.vibrantRosePink,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: IcebergTheme.mintBlue.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(6),
@@ -415,8 +461,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         errorBuilder: (_, _, _) => Container(
           color: IcebergTheme.creamPink.withValues(alpha: 0.2),
           child: const Center(
-            child: Icon(Icons.broken_image,
-                size: 40, color: Colors.grey),
+            child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
           ),
         ),
       );
@@ -424,8 +469,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       return Container(
         color: IcebergTheme.creamPink.withValues(alpha: 0.2),
         child: const Center(
-          child: Icon(Icons.broken_image,
-              size: 40, color: Colors.grey),
+          child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
         ),
       );
     }
@@ -443,8 +487,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Current Order',
-                  style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Current Order',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () {
@@ -462,17 +508,24 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.shopping_cart_outlined,
-                          size: 48, color: Colors.grey),
+                      Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
                       SizedBox(height: 12),
-                      Text('Cart is empty',
-                          style: TextStyle(color: Colors.grey)),
+                      Text(
+                        'Cart is empty',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                       SizedBox(height: 4),
-                      Text('Tap a product to add it',
-                          style:
-                              TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(
+                        'Tap a product to add it',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
                     ],
-                  ))
+                  ),
+                )
               : ListView.builder(
                   itemCount: cart.items.length,
                   itemBuilder: (context, index) {
@@ -500,15 +553,18 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                             .removeItem(index);
                       },
                       child: ListTile(
-                        title: Text(title,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(
+                          title,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         subtitle: Text('Qty: ${item.quantity}'),
                         trailing: Text(
-                            '\$${item.subtotal.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16)),
+                          formatCurrency(item.subtotal),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -525,14 +581,21 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text('\$${cart.totalPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: IcebergTheme.vibrantRosePink)),
+                    const Text(
+                      'Total',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      formatCurrency(cart.totalPrice),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: IcebergTheme.vibrantRosePink,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -544,9 +607,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     backgroundColor: IcebergTheme.vibrantRosePink,
                   ),
-                  child: const Text('Checkout',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Checkout',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -570,10 +634,12 @@ class _PosScreenState extends ConsumerState<PosScreen> {
           final completedOrder = await ref
               .read(cartControllerProvider.notifier)
               .checkout(paymentMethod, staffId);
-          
+
           if (isMobile && mounted) {
             // Pop the bottom sheet
-            Navigator.of(context).popUntil((route) => route.isFirst || !Navigator.of(context).canPop());
+            Navigator.of(context).popUntil(
+              (route) => route.isFirst || !Navigator.of(context).canPop(),
+            );
           }
 
           if (mounted) {

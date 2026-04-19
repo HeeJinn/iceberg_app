@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../../orders/domain/order.dart';
 import '../../../products/domain/product.dart';
@@ -34,12 +35,17 @@ class ReceiptDialog extends StatelessWidget {
                   color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle,
-                    color: Color(0xFF4CAF50), size: 48),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFF4CAF50),
+                  size: 48,
+                ),
               ),
               const SizedBox(height: 16),
-              Text('Order Complete!',
-                  style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                'Order Complete!',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               const SizedBox(height: 4),
               Text(
                 'Order #${order.id.substring(order.id.length - 6)}',
@@ -68,17 +74,24 @@ class ReceiptDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: [
-                          Text('${item.quantity}x',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13)),
+                          Text(
+                            '${item.quantity}x',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: Text(title,
-                                  style: const TextStyle(fontSize: 14))),
-                          Text('\$${item.subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600)),
+                            child: Text(
+                              title,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          Text(
+                            formatCurrency(item.subtotal),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
                         ],
                       ),
                     );
@@ -92,14 +105,18 @@ class ReceiptDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('\$${order.totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: IcebergTheme.vibrantRosePink)),
+                  const Text(
+                    'Total',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    formatCurrency(order.totalPrice),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: IcebergTheme.vibrantRosePink,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -108,18 +125,21 @@ class ReceiptDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Payment: ${order.paymentMethod}',
-                      style: TextStyle(
-                          color: Colors.grey.shade600, fontSize: 13)),
-                  Text(DateFormat('h:mm a').format(order.timestamp),
-                      style: TextStyle(
-                          color: Colors.grey.shade600, fontSize: 13)),
+                  Text(
+                    'Payment: ${order.paymentMethod}',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                  Text(
+                    DateFormat('h:mm a').format(order.timestamp),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text('Cashier: $cashierName',
-                  style:
-                      TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+              Text(
+                'Cashier: $cashierName',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
               const SizedBox(height: 20),
 
               SizedBox(
@@ -129,9 +149,10 @@ class ReceiptDialog extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('New Order',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'New Order',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],

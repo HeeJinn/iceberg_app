@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../../../core/layout/responsive_layout.dart';
 import '../../../orders/data/order_repository.dart';
@@ -16,8 +17,7 @@ class OrderHistoryContent extends ConsumerStatefulWidget {
       _OrderHistoryContentState();
 }
 
-class _OrderHistoryContentState
-    extends ConsumerState<OrderHistoryContent> {
+class _OrderHistoryContentState extends ConsumerState<OrderHistoryContent> {
   String _paymentFilter = 'All';
   DateTimeRange? _dateRange;
 
@@ -48,8 +48,10 @@ class _OrderHistoryContentState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Order History',
-                  style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                'Order History',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 12,
@@ -58,7 +60,8 @@ class _OrderHistoryContentState
                   // Payment Filter
                   DropdownButton<String>(
                     value: _paymentFilter,
-                    onChanged: (v) => setState(() => _paymentFilter = v ?? 'All'),
+                    onChanged: (v) =>
+                        setState(() => _paymentFilter = v ?? 'All'),
                     items: ['All', 'Cash', 'GCash', 'Card']
                         .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                         .toList(),
@@ -76,9 +79,11 @@ class _OrderHistoryContentState
                       }
                     },
                     icon: const Icon(Icons.calendar_today, size: 16),
-                    label: Text(_dateRange == null
-                        ? 'Date Range'
-                        : '${DateFormat('M/d').format(_dateRange!.start)} - ${DateFormat('M/d').format(_dateRange!.end)}'),
+                    label: Text(
+                      _dateRange == null
+                          ? 'Date Range'
+                          : '${DateFormat('M/d').format(_dateRange!.start)} - ${DateFormat('M/d').format(_dateRange!.end)}',
+                    ),
                   ),
                   if (_dateRange != null)
                     IconButton(
@@ -97,17 +102,21 @@ class _OrderHistoryContentState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.receipt_long_outlined,
-                          size: 64, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
-                      const Text('No orders found',
-                          style: TextStyle(color: Colors.grey)),
+                      const Text(
+                        'No orders found',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   itemCount: orders.length,
                   itemBuilder: (context, index) {
                     final order = orders[index];
@@ -125,10 +134,12 @@ class _OrderHistoryContentState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${orders.length} orders',
-                  style: TextStyle(color: Colors.grey.shade600)),
               Text(
-                'Total: \$${orders.fold(0.0, (sum, o) => sum + o.totalPrice).toStringAsFixed(2)}',
+                '${orders.length} orders',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+              Text(
+                'Total: ${formatCurrency(orders.fold(0.0, (sum, o) => sum + o.totalPrice))}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -143,7 +154,7 @@ class _OrderHistoryContentState
   }
 
   Widget _buildOrderCard(BuildContext context, WidgetRef ref, Order order) {
-    final dateStr = DateFormat('MMM d, y · h:mm a').format(order.timestamp);
+    final dateStr = DateFormat('MMM d, y Ã‚Â· h:mm a').format(order.timestamp);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -162,31 +173,40 @@ class _OrderHistoryContentState
             color: _paymentColor(order.paymentMethod),
           ),
         ),
-        title: Text('Order #${order.id.substring(order.id.length - 6)}',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('$dateStr · ${order.items.length} items'),
+        title: Text(
+          'Order #${order.id.substring(order.id.length - 6)}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('$dateStr Ã‚Â· ${order.items.length} items'),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('\$${order.totalPrice.toStringAsFixed(2)}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: IcebergTheme.vibrantRosePink)),
+            Text(
+              formatCurrency(order.totalPrice),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: IcebergTheme.vibrantRosePink,
+              ),
+            ),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: _paymentColor(order.paymentMethod).withValues(alpha: 0.15),
+                color: _paymentColor(
+                  order.paymentMethod,
+                ).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(order.paymentMethod,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: _paymentColor(order.paymentMethod),
-                    fontWeight: FontWeight.w600,
-                  )),
+              child: Text(
+                order.paymentMethod,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: _paymentColor(order.paymentMethod),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -198,8 +218,7 @@ class _OrderHistoryContentState
     final products = ref.read(productRepositoryProvider);
     showDialog(
       context: context,
-      builder: (context) =>
-          OrderDetailDialog(order: order, products: products),
+      builder: (context) => OrderDetailDialog(order: order, products: products),
     );
   }
 

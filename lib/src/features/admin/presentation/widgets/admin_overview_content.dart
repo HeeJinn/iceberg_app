@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../../../core/layout/responsive_layout.dart';
 import '../../application/admin_analytics_controller.dart';
@@ -20,11 +21,15 @@ class AdminOverviewContent extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Dashboard Overview',
-              style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            'Dashboard Overview',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 8),
-          Text('Real-time analytics from your POS transactions',
-              style: TextStyle(color: Colors.grey.shade600)),
+          Text(
+            'Real-time analytics from your POS transactions',
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
           const SizedBox(height: 24),
 
           // Stats Cards
@@ -50,7 +55,8 @@ class AdminOverviewContent extends ConsumerWidget {
                 Expanded(
                   flex: 2,
                   child: CategoryPieChart(
-                      categoryRevenue: analytics.categoryRevenue),
+                    categoryRevenue: analytics.categoryRevenue,
+                  ),
                 ),
               ],
             ),
@@ -61,8 +67,10 @@ class AdminOverviewContent extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Top Products
-          Text('Top Selling Products',
-              style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Top Selling Products',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 16),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -70,8 +78,10 @@ class AdminOverviewContent extends ConsumerWidget {
                 ? const Padding(
                     padding: EdgeInsets.all(32),
                     child: Center(
-                      child: Text('No sales data yet. Start selling!',
-                          style: TextStyle(color: Colors.grey)),
+                      child: Text(
+                        'No sales data yet. Start selling!',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                   )
                 : ListView.separated(
@@ -86,7 +96,9 @@ class AdminOverviewContent extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: IcebergTheme.creamPink.withValues(alpha: 0.5),
+                            color: IcebergTheme.creamPink.withValues(
+                              alpha: 0.5,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
@@ -99,12 +111,13 @@ class AdminOverviewContent extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        title: Text(p.productTitle,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(
+                          p.productTitle,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         subtitle: Text('${p.quantitySold} sold'),
                         trailing: Text(
-                          '\$${p.revenue.toStringAsFixed(2)}',
+                          formatCurrency(p.revenue),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -121,20 +134,35 @@ class AdminOverviewContent extends ConsumerWidget {
   }
 
   Widget _buildStatsGrid(
-      BuildContext context, AnalyticsData analytics, bool isMobile) {
+    BuildContext context,
+    AnalyticsData analytics,
+    bool isMobile,
+  ) {
     final cards = [
-      _StatInfo("Today's Sales",
-          '\$${analytics.todaysSales.toStringAsFixed(2)}', Icons.attach_money,
-          IcebergTheme.vibrantRosePink),
-      _StatInfo('Total Orders', '${analytics.todaysOrderCount}',
-          Icons.shopping_bag, const Color(0xFF4FC3F7)),
       _StatInfo(
-          'Avg Order',
-          '\$${analytics.averageOrderValue.toStringAsFixed(2)}',
-          Icons.trending_up,
-          IcebergTheme.mintBlueDark),
-      _StatInfo('Top Product', analytics.topProduct, Icons.star,
-          const Color(0xFFFFB74D)),
+        "Today's Sales",
+        formatCurrency(analytics.todaysSales),
+        Icons.payments_outlined,
+        IcebergTheme.vibrantRosePink,
+      ),
+      _StatInfo(
+        'Total Orders',
+        '${analytics.todaysOrderCount}',
+        Icons.shopping_bag,
+        const Color(0xFF4FC3F7),
+      ),
+      _StatInfo(
+        'Avg Order',
+        formatCurrency(analytics.averageOrderValue),
+        Icons.trending_up,
+        IcebergTheme.mintBlueDark,
+      ),
+      _StatInfo(
+        'Top Product',
+        analytics.topProduct,
+        Icons.star,
+        const Color(0xFFFFB74D),
+      ),
     ];
 
     if (isMobile) {
@@ -151,12 +179,14 @@ class AdminOverviewContent extends ConsumerWidget {
 
     return Row(
       children: cards
-          .map((c) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: _buildStatCard(c),
-                ),
-              ))
+          .map(
+            (c) => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: _buildStatCard(c),
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -178,8 +208,10 @@ class AdminOverviewContent extends ConsumerWidget {
               child: Icon(info.icon, color: info.color, size: 24),
             ),
             const SizedBox(height: 12),
-            Text(info.title,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+            Text(
+              info.title,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            ),
             const SizedBox(height: 4),
             Text(
               info.value,

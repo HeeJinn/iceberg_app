@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../../../core/layout/responsive_layout.dart';
 import '../../../products/data/product_repository.dart';
@@ -29,8 +30,9 @@ class _ProductManagementContentState
     final isMobile = ResponsiveLayout.isMobile(context);
 
     final filtered = products.where((p) {
-      final matchesSearch =
-          p.title.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch = p.title.toLowerCase().contains(
+        _searchQuery.toLowerCase(),
+      );
       if (!matchesSearch) return false;
       if (_selectedCategory == null) return true;
       final productCat = p.customCategory.isNotEmpty
@@ -51,8 +53,10 @@ class _ProductManagementContentState
               Row(
                 children: [
                   Expanded(
-                    child: Text('Product Management',
-                        style: Theme.of(context).textTheme.headlineMedium),
+                    child: Text(
+                      'Product Management',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                   ),
                   // Manage Categories button
                   if (!isMobile)
@@ -64,7 +68,9 @@ class _ProductManagementContentState
                         label: const Text('Categories'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -99,15 +105,12 @@ class _ProductManagementContentState
                   DropdownButton<String?>(
                     value: _selectedCategory,
                     hint: const Text('All'),
-                    onChanged: (v) =>
-                        setState(() => _selectedCategory = v),
+                    onChanged: (v) => setState(() => _selectedCategory = v),
                     items: [
-                      const DropdownMenuItem(
-                          value: null, child: Text('All')),
-                      ...categories.map((c) => DropdownMenuItem(
-                            value: c,
-                            child: Text(c),
-                          )),
+                      const DropdownMenuItem(value: null, child: Text('All')),
+                      ...categories.map(
+                        (c) => DropdownMenuItem(value: c, child: Text(c)),
+                      ),
                     ],
                   ),
                 ],
@@ -123,17 +126,21 @@ class _ProductManagementContentState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.inventory_2_outlined,
-                          size: 64, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
-                      const Text('No products found',
-                          style: TextStyle(color: Colors.grey)),
+                      const Text(
+                        'No products found',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
                 )
               : ListView.separated(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   itemCount: filtered.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
@@ -147,10 +154,13 @@ class _ProductManagementContentState
   }
 
   Widget _buildProductTile(
-      BuildContext context, WidgetRef ref, Product product) {
-    final hasImage = product.imageUrl.isNotEmpty &&
-        (product.imageUrl.startsWith('data:') ||
-            product.imageUrl.length > 200);
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+  ) {
+    final hasImage =
+        product.imageUrl.isNotEmpty &&
+        (product.imageUrl.startsWith('data:') || product.imageUrl.length > 200);
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -177,16 +187,18 @@ class _ProductManagementContentState
         product.title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          decoration:
-              product.isAvailable ? null : TextDecoration.lineThrough,
+          decoration: product.isAvailable ? null : TextDecoration.lineThrough,
         ),
       ),
       subtitle: Row(
         children: [
-          Text('\$${product.price.toStringAsFixed(2)}',
-              style: const TextStyle(
-                  color: IcebergTheme.vibrantRosePink,
-                  fontWeight: FontWeight.bold)),
+          Text(
+            formatCurrency(product.price),
+            style: const TextStyle(
+              color: IcebergTheme.vibrantRosePink,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -194,12 +206,16 @@ class _ProductManagementContentState
               color: IcebergTheme.mintBlue.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(_categoryLabel(product),
-                style: const TextStyle(fontSize: 11)),
+            child: Text(
+              _categoryLabel(product),
+              style: const TextStyle(fontSize: 11),
+            ),
           ),
           const SizedBox(width: 8),
-          Text('Cost: \$${product.cost.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          Text(
+            'Cost: ${formatCurrency(product.cost)}',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          ),
         ],
       ),
       trailing: Row(
@@ -207,17 +223,21 @@ class _ProductManagementContentState
         children: [
           Switch(
             value: product.isAvailable,
-            onChanged: (_) => ref.read(productRepositoryProvider.notifier)
+            onChanged: (_) => ref
+                .read(productRepositoryProvider.notifier)
                 .toggleAvailability(product.id),
             activeTrackColor: IcebergTheme.vibrantRosePink,
           ),
           IconButton(
             icon: const Icon(Icons.edit_outlined, size: 20),
-            onPressed: () =>
-                _showProductForm(context, ref, product: product),
+            onPressed: () => _showProductForm(context, ref, product: product),
           ),
           IconButton(
-            icon: Icon(Icons.delete_outline, size: 20, color: Colors.red.shade400),
+            icon: Icon(
+              Icons.delete_outline,
+              size: 20,
+              color: Colors.red.shade400,
+            ),
             onPressed: () => _confirmDelete(context, ref, product),
           ),
         ],
@@ -227,8 +247,7 @@ class _ProductManagementContentState
 
   Widget _buildBase64Thumb(String dataUrl) {
     try {
-      final raw =
-          dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+      final raw = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
       final bytes = base64Decode(raw);
       return Image.memory(bytes, fit: BoxFit.cover);
     } catch (_) {
@@ -236,8 +255,11 @@ class _ProductManagementContentState
     }
   }
 
-  void _showProductForm(BuildContext context, WidgetRef ref,
-      {Product? product}) {
+  void _showProductForm(
+    BuildContext context,
+    WidgetRef ref, {
+    Product? product,
+  }) {
     showDialog(
       context: context,
       builder: (context) => ProductFormDialog(
@@ -264,8 +286,11 @@ class _ProductManagementContentState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        icon: Icon(Icons.warning_amber_rounded,
-            color: Theme.of(context).colorScheme.error, size: 32),
+        icon: Icon(
+          Icons.warning_amber_rounded,
+          color: Theme.of(context).colorScheme.error,
+          size: 32,
+        ),
         title: const Text('Delete Product'),
         content: Text('Are you sure you want to delete "${product.title}"?'),
         actions: [

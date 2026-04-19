@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:iceberg_app/src/core/theme/iceberg_theme.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../orders/data/order_repository.dart';
 import '../../reports/data/shift_report_repository.dart';
@@ -34,13 +35,21 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
     // Compute today's totals
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
-    final todaysOrders = orders.where((o) => o.timestamp.isAfter(startOfDay)).toList();
+    final todaysOrders = orders
+        .where((o) => o.timestamp.isAfter(startOfDay))
+        .toList();
     final systemTotal = todaysOrders.fold(0.0, (sum, o) => sum + o.totalPrice);
-    final cashOrders = todaysOrders.where((o) => o.paymentMethod == 'Cash').toList();
+    final cashOrders = todaysOrders
+        .where((o) => o.paymentMethod == 'Cash')
+        .toList();
     final cashTotal = cashOrders.fold(0.0, (sum, o) => sum + o.totalPrice);
-    final gcashOrders = todaysOrders.where((o) => o.paymentMethod == 'GCash').toList();
+    final gcashOrders = todaysOrders
+        .where((o) => o.paymentMethod == 'GCash')
+        .toList();
     final gcashTotal = gcashOrders.fold(0.0, (sum, o) => sum + o.totalPrice);
-    final cardOrders = todaysOrders.where((o) => o.paymentMethod == 'Card').toList();
+    final cardOrders = todaysOrders
+        .where((o) => o.paymentMethod == 'Card')
+        .toList();
     final cardTotal = cardOrders.fold(0.0, (sum, o) => sum + o.totalPrice);
 
     final declaredCash = double.tryParse(_cashController.text) ?? 0;
@@ -48,7 +57,7 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('End of Day — Z-Reading'),
+        title: const Text('End of Day Ã¢â‚¬â€ Z-Reading'),
         backgroundColor: IcebergTheme.white,
         foregroundColor: IcebergTheme.darkSlate,
         elevation: 0,
@@ -73,17 +82,19 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                       padding: const EdgeInsets.all(24),
                       child: Column(
                         children: [
-                          const Icon(Icons.receipt_long,
-                              size: 48,
-                              color: IcebergTheme.vibrantRosePink),
+                          const Icon(
+                            Icons.receipt_long,
+                            size: 48,
+                            color: IcebergTheme.vibrantRosePink,
+                          ),
                           const SizedBox(height: 12),
-                          Text('Shift Summary',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium),
+                          Text(
+                            'Shift Summary',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                           const SizedBox(height: 4),
                           Text(
-                            '${auth?.name ?? "Staff"} · ${DateFormat('MMMM d, y').format(now)}',
+                            '${auth?.name ?? "Staff"} Ã‚Â· ${DateFormat('MMMM d, y').format(now)}',
                             style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
@@ -99,33 +110,46 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Sales Breakdown',
-                              style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                            'Sales Breakdown',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           const SizedBox(height: 16),
                           _buildSummaryRow(
-                              'Total Sales', '\$${systemTotal.toStringAsFixed(2)}',
-                              isBold: true, color: IcebergTheme.vibrantRosePink),
+                            'Total Sales',
+                            formatCurrency(systemTotal),
+                            isBold: true,
+                            color: IcebergTheme.vibrantRosePink,
+                          ),
                           const Divider(height: 24),
                           _buildSummaryRow(
-                              'Cash (${cashOrders.length} orders)',
-                              '\$${cashTotal.toStringAsFixed(2)}'),
+                            'Cash (${cashOrders.length} orders)',
+                            formatCurrency(cashTotal),
+                          ),
                           const SizedBox(height: 8),
                           _buildSummaryRow(
-                              'GCash (${gcashOrders.length} orders)',
-                              '\$${gcashTotal.toStringAsFixed(2)}'),
+                            'GCash (${gcashOrders.length} orders)',
+                            formatCurrency(gcashTotal),
+                          ),
                           const SizedBox(height: 8),
                           _buildSummaryRow(
-                              'Card (${cardOrders.length} orders)',
-                              '\$${cardTotal.toStringAsFixed(2)}'),
+                            'Card (${cardOrders.length} orders)',
+                            formatCurrency(cardTotal),
+                          ),
                           const Divider(height: 24),
-                          _buildSummaryRow('Total Orders',
-                              '${todaysOrders.length}'),
+                          _buildSummaryRow(
+                            'Total Orders',
+                            '${todaysOrders.length}',
+                          ),
                           const SizedBox(height: 8),
                           _buildSummaryRow(
-                              'Average Order',
-                              todaysOrders.isEmpty
-                                  ? '\$0.00'
-                                  : '\$${(systemTotal / todaysOrders.length).toStringAsFixed(2)}'),
+                            'Average Order',
+                            todaysOrders.isEmpty
+                                ? formatCurrency(0)
+                                : formatCurrency(
+                                    systemTotal / todaysOrders.length,
+                                  ),
+                          ),
                         ],
                       ),
                     ),
@@ -139,25 +163,32 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Cash Declaration',
-                              style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                            'Cash Declaration',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           const SizedBox(height: 8),
-                          Text('System Expected Cash:',
-                              style:
-                                  TextStyle(color: Colors.grey.shade600)),
-                          Text('\$${cashTotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            'System Expected Cash:',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          Text(
+                            formatCurrency(cashTotal),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 20),
                           TextField(
                             controller: _cashController,
                             decoration: InputDecoration(
                               labelText: 'Actual Drawer Cash',
                               border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
-                              prefixIcon: const Icon(Icons.attach_money),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: const Icon(Icons.payments_outlined),
+                              prefixText: '\u20B1 ',
                             ),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => setState(() {}),
@@ -168,12 +199,14 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: discrepancy.abs() < 0.01
-                                    ? IcebergTheme.mintBlue
-                                        .withValues(alpha: 0.5)
+                                    ? IcebergTheme.mintBlue.withValues(
+                                        alpha: 0.5,
+                                      )
                                     : discrepancy > 0
-                                        ? const Color(0xFF4FC3F7)
-                                            .withValues(alpha: 0.15)
-                                        : Colors.red.shade50,
+                                    ? const Color(
+                                        0xFF4FC3F7,
+                                      ).withValues(alpha: 0.15)
+                                    : Colors.red.shade50,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -182,29 +215,29 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                                 children: [
                                   Text(
                                     discrepancy.abs() < 0.01
-                                        ? 'Balanced ✓'
+                                        ? 'Balanced Ã¢Å“â€œ'
                                         : discrepancy > 0
-                                            ? 'Overage'
-                                            : 'Shortage',
+                                        ? 'Overage'
+                                        : 'Shortage',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: discrepancy.abs() < 0.01
                                           ? const Color(0xFF4CAF50)
                                           : discrepancy > 0
-                                              ? const Color(0xFF2196F3)
-                                              : Colors.red,
+                                          ? const Color(0xFF2196F3)
+                                          : Colors.red,
                                     ),
                                   ),
                                   Text(
-                                    '\$${discrepancy.abs().toStringAsFixed(2)}',
+                                    formatCurrency(discrepancy.abs()),
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                       color: discrepancy.abs() < 0.01
                                           ? const Color(0xFF4CAF50)
                                           : discrepancy > 0
-                                              ? const Color(0xFF2196F3)
-                                              : Colors.red,
+                                          ? const Color(0xFF2196F3)
+                                          : Colors.red,
                                     ),
                                   ),
                                 ],
@@ -220,12 +253,12 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                     onPressed: _isSubmitting || _cashController.text.isEmpty
                         ? null
                         : () => _submitClockOut(
-                              context,
-                              auth?.id ?? '',
-                              systemTotal,
-                              declaredCash,
-                              discrepancy,
-                            ),
+                            context,
+                            auth?.id ?? '',
+                            systemTotal,
+                            declaredCash,
+                            discrepancy,
+                          ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                     ),
@@ -234,12 +267,17 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: IcebergTheme.white))
-                        : const Text('Submit & Clock Out',
+                              strokeWidth: 2,
+                              color: IcebergTheme.white,
+                            ),
+                          )
+                        : const Text(
+                            'Submit & Clock Out',
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -250,22 +288,30 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value,
-      {bool isBold = false, Color? color}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    bool isBold = false,
+    Color? color,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: TextStyle(
-              color: isBold ? null : Colors.grey.shade700,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            )),
-        Text(value,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              fontSize: isBold ? 20 : 16,
-              color: color,
-            )),
+        Text(
+          label,
+          style: TextStyle(
+            color: isBold ? null : Colors.grey.shade700,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            fontSize: isBold ? 20 : 16,
+            color: color,
+          ),
+        ),
       ],
     );
   }
@@ -282,8 +328,13 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
     final report = ShiftReport(
       id: const Uuid().v4(),
       staffId: staffId,
-      startTime: DateTime(DateTime.now().year, DateTime.now().month,
-          DateTime.now().day, 8, 0), // assume 8am start
+      startTime: DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        8,
+        0,
+      ), // assume 8am start
       endTime: DateTime.now(),
       systemTotal: systemTotal,
       declaredCash: declaredCash,

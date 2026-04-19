@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:iceberg_app/src/core/utils/currency.dart';
 import '../../../../core/theme/iceberg_theme.dart';
 import '../../../orders/domain/order.dart';
 import '../../../products/domain/product.dart';
@@ -28,7 +29,10 @@ class OrderDetailDialog extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.receipt_long, color: IcebergTheme.vibrantRosePink),
+                  const Icon(
+                    Icons.receipt_long,
+                    color: IcebergTheme.vibrantRosePink,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -44,7 +48,7 @@ class OrderDetailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                DateFormat('MMMM d, y · h:mm a').format(order.timestamp),
+                DateFormat('MMMM d, y Ã‚Â· h:mm a').format(order.timestamp),
                 style: TextStyle(color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),
@@ -61,11 +65,13 @@ class OrderDetailDialog extends StatelessWidget {
                     final item = order.items[index];
                     String title;
                     try {
-                      title = products.firstWhere((p) => p.id == item.productId).title;
+                      title = products
+                          .firstWhere((p) => p.id == item.productId)
+                          .title;
                     } catch (_) {
                       title = 'Product ${item.productId}';
                     }
-                    
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Row(
@@ -74,14 +80,19 @@ class OrderDetailDialog extends StatelessWidget {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: IcebergTheme.creamPink.withValues(alpha: 0.5),
+                              color: IcebergTheme.creamPink.withValues(
+                                alpha: 0.5,
+                              ),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Center(
-                              child: Text('${item.quantity}x',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold)),
+                              child: Text(
+                                '${item.quantity}x',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -89,24 +100,29 @@ class OrderDetailDialog extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(title,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600)),
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                                 if (item.modifiers.isNotEmpty)
                                   Text(
                                     item.modifiers.entries
                                         .map((e) => '${e.key}: ${e.value}')
                                         .join(', '),
                                     style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600),
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
                               ],
                             ),
                           ),
-                          Text('\$${item.subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            formatCurrency(item.subtotal),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     );
@@ -122,14 +138,18 @@ class OrderDetailDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('\$${order.totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: IcebergTheme.vibrantRosePink)),
+                  const Text(
+                    'Total',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    formatCurrency(order.totalPrice),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: IcebergTheme.vibrantRosePink,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -137,8 +157,10 @@ class OrderDetailDialog extends StatelessWidget {
                 children: [
                   const Icon(Icons.payment, size: 16, color: Colors.grey),
                   const SizedBox(width: 8),
-                  Text('Paid via ${order.paymentMethod}',
-                      style: TextStyle(color: Colors.grey.shade600)),
+                  Text(
+                    'Paid via ${order.paymentMethod}',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
                 ],
               ),
               if (order.staffId.isNotEmpty) ...[
@@ -147,8 +169,10 @@ class OrderDetailDialog extends StatelessWidget {
                   children: [
                     const Icon(Icons.person, size: 16, color: Colors.grey),
                     const SizedBox(width: 8),
-                    Text('Cashier: ${order.staffId}',
-                        style: TextStyle(color: Colors.grey.shade600)),
+                    Text(
+                      'Cashier: ${order.staffId}',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
                   ],
                 ),
               ],
