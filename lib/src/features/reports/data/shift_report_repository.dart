@@ -4,7 +4,7 @@ import '../domain/shift_report.dart';
 
 part 'shift_report_repository.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ShiftReportRepository extends _$ShiftReportRepository {
   late final Box<ShiftReport> _box;
 

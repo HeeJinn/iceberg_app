@@ -20,4 +20,6 @@ Future<void> setupHive() async {
   await Hive.openBox<String>('sync_queue');
   await Hive.openBox<String>('categories');
   await Hive.openBox('settings');
+  await Hive.openBox<String>('vessel_options');
+  await Hive.openBox<String>('flavor_options');
 }

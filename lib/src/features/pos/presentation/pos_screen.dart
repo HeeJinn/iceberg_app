@@ -621,41 +621,43 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   }
 
   void _showPaymentDialog(BuildContext context, Order cart, dynamic auth) {
-    // Close mobile cart sheet if open
     final isMobile = ResponsiveLayout.isMobile(context);
+    final staffId = auth?.id ?? '';
+    final staffName = auth?.name ?? '';
+    Order? completedOrder;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => PaymentDialog(
         totalAmount: cart.totalPrice,
         onConfirm: (paymentMethod) async {
-          final staffId = auth?.id ?? '';
-          final staffName = auth?.name ?? '';
-          final completedOrder = await ref
+          completedOrder = await ref
               .read(cartControllerProvider.notifier)
               .checkout(paymentMethod, staffId);
-
-          if (isMobile && mounted) {
-            // Pop the bottom sheet
-            Navigator.of(context).popUntil(
-              (route) => route.isFirst || !Navigator.of(context).canPop(),
-            );
-          }
-
-          if (mounted) {
-            final products = ref.read(productRepositoryProvider);
-            showDialog(
-              context: this.context,
-              builder: (c) => ReceiptDialog(
-                order: completedOrder,
-                products: products,
-                cashierName: staffName,
-              ),
-            );
-          }
         },
       ),
-    );
+    ).then((_) {
+      // Payment dialog has closed (after success animation)
+      if (!mounted || completedOrder == null) return;
+
+      if (isMobile) {
+        // Pop any remaining bottom sheets
+        Navigator.of(context).popUntil(
+          (route) => route.isFirst || !Navigator.of(context).canPop(),
+        );
+      }
+
+      final products = ref.read(productRepositoryProvider);
+      showDialog(
+        context: this.context,
+        builder: (c) => ReceiptDialog(
+          order: completedOrder!,
+          products: products,
+          cashierName: staffName,
+        ),
+      );
+    });
   }
 
   String _enumToLabel(ProductCategory c) {

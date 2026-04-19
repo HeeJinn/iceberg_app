@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iceberg_app/src/core/utils/currency.dart';
 import 'package:iceberg_app/src/core/theme/iceberg_theme.dart';
 import 'package:iceberg_app/src/features/products/domain/product.dart';
 import 'package:iceberg_app/src/features/orders/domain/order.dart';
+import 'package:iceberg_app/src/features/products/data/modifier_options_repository.dart';
 
-class ModifierModal extends StatefulWidget {
+class ModifierModal extends ConsumerStatefulWidget {
   final Product product;
   final Function(OrderItem) onAddToCart;
 
@@ -15,27 +17,14 @@ class ModifierModal extends StatefulWidget {
   });
 
   @override
-  State<ModifierModal> createState() => _ModifierModalState();
+  ConsumerState<ModifierModal> createState() => _ModifierModalState();
 }
 
-class _ModifierModalState extends State<ModifierModal> {
+class _ModifierModalState extends ConsumerState<ModifierModal> {
   int _quantity = 1;
   final Map<String, int> _modifiers = {};
 
-  final List<String> _availableVessels = [
-    'Cup',
-    'Sugar Cone',
-    'Waffle Cone (+₱0.50)',
-  ];
-  final List<String> _availableFlavors = [
-    'Vanilla',
-    'Chocolate',
-    'Strawberry',
-    'Mint Chip',
-    'Cookies & Cream',
-  ];
-
-  String _selectedVessel = 'Cup';
+  String? _selectedVesselName;
 
   void _incrementFlavor(String flavor) {
     setState(() {
@@ -55,13 +44,33 @@ class _ModifierModalState extends State<ModifierModal> {
   }
 
   void _submit() {
+    final vessels = ref.read(vesselOptionsRepositoryProvider);
     double basePrice = widget.product.price;
-    if (_selectedVessel.contains('+')) {
-      // Basic mock extraction of upcharge purely for demonstration
-      basePrice += 0.50;
+
+    // Add vessel upcharge if any
+    if (_selectedVesselName != null) {
+      final vessel = vessels.firstWhere(
+        (v) => v.name == _selectedVesselName,
+        orElse: () => const ModifierOption(name: '', price: 0),
+      );
+      basePrice += vessel.price;
     }
 
-    final Map<String, int> finalModifiers = {_selectedVessel: 1, ..._modifiers};
+    // Add flavor upcharges if any
+    final flavors = ref.read(flavorOptionsRepositoryProvider);
+    for (final entry in _modifiers.entries) {
+      final flavor = flavors.firstWhere(
+        (f) => f.name == entry.key,
+        orElse: () => const ModifierOption(name: '', price: 0),
+      );
+      basePrice += flavor.price * entry.value;
+    }
+
+    final vesselLabel = _selectedVesselName ?? '';
+    final Map<String, int> finalModifiers = {
+      if (vesselLabel.isNotEmpty) vesselLabel: 1,
+      ..._modifiers,
+    };
 
     final orderItem = OrderItem(
       productId: widget.product.id,
@@ -76,6 +85,14 @@ class _ModifierModalState extends State<ModifierModal> {
 
   @override
   Widget build(BuildContext context) {
+    final vessels = ref.watch(vesselOptionsRepositoryProvider);
+    final flavors = ref.watch(flavorOptionsRepositoryProvider);
+
+    // Auto-select first vessel if none selected yet
+    if (_selectedVesselName == null && vessels.isNotEmpty) {
+      _selectedVesselName = vessels.first.name;
+    }
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -107,79 +124,121 @@ class _ModifierModalState extends State<ModifierModal> {
             ),
             const SizedBox(height: 24),
 
+            // ---- Vessel Selection ----
             Text(
               '1. Choose Vessel',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _availableVessels.map((vessel) {
-                final isSelected = _selectedVessel == vessel;
-                return ChoiceChip(
-                  label: Text(vessel),
-                  selected: isSelected,
-                  selectedColor: IcebergTheme.mintBlueDark,
-                  onSelected: (val) {
-                    if (val) setState(() => _selectedVessel = vessel);
-                  },
-                );
-              }).toList(),
-            ),
-
+            if (vessels.isEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
+                    const SizedBox(width: 8),
+                    Text(
+                      'No vessel options configured',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: vessels.map((vessel) {
+                  final isSelected = _selectedVesselName == vessel.name;
+                  return ChoiceChip(
+                    label: Text(vessel.displayLabel),
+                    selected: isSelected,
+                    selectedColor: IcebergTheme.mintBlueDark,
+                    onSelected: (val) {
+                      if (val) setState(() => _selectedVesselName = vessel.name);
+                    },
+                  );
+                }).toList(),
+              ),
             const SizedBox(height: 24),
+
+            // ---- Flavor Selection ----
             Text(
               '2. Scoops & Flavors',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.3,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: _availableFlavors.map((flavor) {
-                    final count = _modifiers[flavor] ?? 0;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              flavor,
-                              style: Theme.of(context).textTheme.bodyLarge,
+            if (flavors.isEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
+                    const SizedBox(width: 8),
+                    Text(
+                      'No flavor options configured',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.3,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: flavors.map((flavor) {
+                      final count = _modifiers[flavor.name] ?? 0;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                flavor.price > 0
+                                    ? '${flavor.name} (+${formatCurrency(flavor.price)})'
+                                    : flavor.name,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () => _decrementFlavor(flavor),
-                            icon: const Icon(
-                              Icons.remove_circle_outline,
-                              color: IcebergTheme.darkSlate,
+                            IconButton(
+                              onPressed: () => _decrementFlavor(flavor.name),
+                              icon: const Icon(
+                                Icons.remove_circle_outline,
+                                color: IcebergTheme.darkSlate,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '$count',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                            Text(
+                              '$count',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () => _incrementFlavor(flavor),
-                            icon: const Icon(
-                              Icons.add_circle,
-                              color: IcebergTheme.vibrantRosePink,
+                            IconButton(
+                              onPressed: () => _incrementFlavor(flavor.name),
+                              icon: const Icon(
+                                Icons.add_circle,
+                                color: IcebergTheme.vibrantRosePink,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
 
             const SizedBox(height: 24),
             Row(

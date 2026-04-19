@@ -4,7 +4,7 @@ import '../domain/order.dart';
 
 part 'order_repository.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class OrderRepository extends _$OrderRepository {
   late final Box<Order> _box;
 

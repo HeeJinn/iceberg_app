@@ -20,7 +20,7 @@ final class OrderRepositoryProvider
         argument: null,
         retry: null,
         name: r'orderRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,7 +41,7 @@ final class OrderRepositoryProvider
   }
 }
 
-String _$orderRepositoryHash() => r'b9933b6a627053e9aee80673a8e3bb8b8ccddb49';
+String _$orderRepositoryHash() => r'5ea7b9c67955a47f963f88ddd2ecb0795a24091a';
 
 abstract class _$OrderRepository extends $Notifier<List<Order>> {
   List<Order> build();

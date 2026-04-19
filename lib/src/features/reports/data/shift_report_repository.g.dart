@@ -20,7 +20,7 @@ final class ShiftReportRepositoryProvider
         argument: null,
         retry: null,
         name: r'shiftReportRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -42,7 +42,7 @@ final class ShiftReportRepositoryProvider
 }
 
 String _$shiftReportRepositoryHash() =>
-    r'167a379f53d82ededd1c16d2057603c4bbb9eaed';
+    r'bc8522d8bfa34da42180c5cdfc5ae6e24d37e185';
 
 abstract class _$ShiftReportRepository extends $Notifier<List<ShiftReport>> {
   List<ShiftReport> build();
