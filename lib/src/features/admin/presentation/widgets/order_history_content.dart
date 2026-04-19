@@ -154,7 +154,7 @@ class _OrderHistoryContentState extends ConsumerState<OrderHistoryContent> {
   }
 
   Widget _buildOrderCard(BuildContext context, WidgetRef ref, Order order) {
-    final dateStr = DateFormat('MMM d, y Ã‚Â· h:mm a').format(order.timestamp);
+    final dateStr = DateFormat('MMM d, y · h:mm a').format(order.timestamp);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -177,7 +177,7 @@ class _OrderHistoryContentState extends ConsumerState<OrderHistoryContent> {
           'Order #${order.id.substring(order.id.length - 6)}',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('$dateStr Ã‚Â· ${order.items.length} items'),
+        subtitle: Text('$dateStr · ${order.items.length} items'),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,

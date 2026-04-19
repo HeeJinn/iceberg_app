@@ -48,7 +48,7 @@ class OrderDetailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                DateFormat('MMMM d, y Ã‚Â· h:mm a').format(order.timestamp),
+                DateFormat('MMMM d, y · h:mm a').format(order.timestamp),
                 style: TextStyle(color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),

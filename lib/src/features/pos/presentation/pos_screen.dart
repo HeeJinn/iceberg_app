@@ -272,7 +272,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
           ),
         ),
 
-        // Category Filter Tabs â€” dynamic from CategoryRepository
+        // Category Filter Tabs -- dynamic from CategoryRepository
         SizedBox(
           height: 44,
           child: ListView(

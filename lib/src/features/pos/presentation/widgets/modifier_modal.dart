@@ -25,7 +25,7 @@ class _ModifierModalState extends State<ModifierModal> {
   final List<String> _availableVessels = [
     'Cup',
     'Sugar Cone',
-    'Waffle Cone (+â‚±0.50)',
+    'Waffle Cone (+₱0.50)',
   ];
   final List<String> _availableFlavors = [
     'Vanilla',

@@ -5,6 +5,7 @@ import 'package:iceberg_app/src/features/pos/presentation/pos_screen.dart';
 import 'package:iceberg_app/src/features/pos/presentation/clock_out_screen.dart';
 import 'package:iceberg_app/src/features/auth/application/auth_controller.dart';
 import 'package:iceberg_app/src/features/auth/presentation/pin_login_screen.dart';
+import 'package:iceberg_app/src/features/splash/presentation/splash_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -13,10 +14,14 @@ GoRouter appRouter(Ref ref) {
   final authState = ref.watch(authControllerProvider);
   
   return GoRouter(
-    initialLocation: '/pos',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final isLoggedIn = authState != null;
       final isLoggingIn = state.matchedLocation == '/login';
+      final isSplash = state.matchedLocation == '/splash';
+      
+      // Always allow splash screen
+      if (isSplash) return null;
       
       if (!isLoggedIn && !isLoggingIn) {
         return '/login';
@@ -34,6 +39,10 @@ GoRouter appRouter(Ref ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const PinLoginScreen(),

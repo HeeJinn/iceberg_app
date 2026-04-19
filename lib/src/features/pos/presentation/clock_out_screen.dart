@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -57,7 +57,7 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('End of Day Ã¢â‚¬â€ Z-Reading'),
+        title: const Text('End of Day - Z-Reading'),
         backgroundColor: IcebergTheme.white,
         foregroundColor: IcebergTheme.darkSlate,
         elevation: 0,
@@ -94,7 +94,7 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${auth?.name ?? "Staff"} Ã‚Â· ${DateFormat('MMMM d, y').format(now)}',
+                            '${auth?.name ?? "Staff"} · ${DateFormat('MMMM d, y').format(now)}',
                             style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
@@ -215,7 +215,7 @@ class _ClockOutScreenState extends ConsumerState<ClockOutScreen> {
                                 children: [
                                   Text(
                                     discrepancy.abs() < 0.01
-                                        ? 'Balanced Ã¢Å“â€œ'
+                                        ? 'Balanced ✓'
                                         : discrepancy > 0
                                         ? 'Overage'
                                         : 'Shortage',
