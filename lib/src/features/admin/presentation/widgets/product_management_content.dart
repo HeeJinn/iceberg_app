@@ -135,7 +135,7 @@ class _ProductManagementContentState
                   padding:
                       EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final product = filtered[index];
                     return _buildProductTile(context, ref, product);

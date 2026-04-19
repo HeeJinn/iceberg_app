@@ -412,7 +412,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       return Image.memory(
         bytes,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           color: IcebergTheme.creamPink.withValues(alpha: 0.2),
           child: const Center(
             child: Icon(Icons.broken_image,

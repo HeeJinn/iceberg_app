@@ -188,7 +188,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                 ),
                 child: Text(
-                  'Confirm ${_selectedMethod} Payment',
+                  'Confirm $_selectedMethod Payment',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),

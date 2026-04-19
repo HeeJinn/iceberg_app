@@ -47,7 +47,7 @@ class _StaffManagementContentState
                   padding:
                       EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   itemCount: staffList.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final staff = staffList[index];
                     return ListTile(
@@ -155,7 +155,7 @@ class _StaffManagementContentState
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<StaffRole>(
-                  value: role,
+                  initialValue: role,
                   decoration: const InputDecoration(
                     labelText: 'Role',
                     prefixIcon: Icon(Icons.work_outline),

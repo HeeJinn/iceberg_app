@@ -78,7 +78,7 @@ class AdminOverviewContent extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: analytics.topProducts.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final p = analytics.topProducts[index];
                       return ListTile(
