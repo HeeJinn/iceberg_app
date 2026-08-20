@@ -22,8 +22,11 @@ class ReceiptDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 380),
-        child: Padding(
+        constraints: BoxConstraints(
+          maxWidth: 380,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -55,48 +58,46 @@ class ReceiptDialog extends StatelessWidget {
               const Divider(),
 
               // Items
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 200),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: order.items.length,
-                  itemBuilder: (context, index) {
-                    final item = order.items[index];
-                    String title;
-                    try {
-                      title = products
-                          .firstWhere((p) => p.id == item.productId)
-                          .title;
-                    } catch (_) {
-                      title = 'Item';
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${item.quantity}x',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: order.items.length,
+                itemBuilder: (context, index) {
+                  final item = order.items[index];
+                  String title;
+                  try {
+                    title = products
+                        .firstWhere((p) => p.id == item.productId)
+                        .title;
+                  } catch (_) {
+                    title = 'Item';
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${item.quantity}x',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(fontSize: 14),
                           ),
-                          Text(
-                            formatCurrency(item.subtotal),
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                        Text(
+                          formatCurrency(item.subtotal),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               const Divider(),
               const SizedBox(height: 4),
@@ -125,9 +126,11 @@ class ReceiptDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Payment: ${order.paymentMethod}',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  Flexible(
+                    child: Text(
+                      'Payment: ${order.paymentMethod}',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
                   ),
                   Text(
                     DateFormat('h:mm a').format(order.timestamp),

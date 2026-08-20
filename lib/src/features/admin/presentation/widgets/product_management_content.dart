@@ -145,7 +145,10 @@ class _ProductManagementContentState
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final product = filtered[index];
-                    return _buildProductTile(context, ref, product);
+                    if (isMobile) {
+                      return _buildMobileProductTile(context, ref, product);
+                    }
+                    return _buildDesktopProductTile(context, ref, product);
                   },
                 ),
         ),
@@ -153,7 +156,151 @@ class _ProductManagementContentState
     );
   }
 
-  Widget _buildProductTile(
+  // ===========================================================================
+  // Mobile: compact card layout that doesn't overflow
+  // ===========================================================================
+  Widget _buildMobileProductTile(
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+  ) {
+    final hasImage =
+        product.imageUrl.isNotEmpty &&
+        (product.imageUrl.startsWith('data:') || product.imageUrl.length > 200);
+
+    return InkWell(
+      onTap: () => _showProductForm(context, ref, product: product),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Product image/icon
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: product.isAvailable
+                    ? IcebergTheme.creamPink.withValues(alpha: 0.5)
+                    : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: hasImage
+                  ? _buildBase64Thumb(product.imageUrl)
+                  : Icon(
+                      _categoryIcon(product.category),
+                      size: 22,
+                      color: product.isAvailable
+                          ? IcebergTheme.vibrantRosePink
+                          : Colors.grey,
+                    ),
+            ),
+            const SizedBox(width: 12),
+            // Title + price + category (wrapping layout)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      decoration:
+                          product.isAvailable ? null : TextDecoration.lineThrough,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        formatCurrency(product.price),
+                        style: const TextStyle(
+                          color: IcebergTheme.vibrantRosePink,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: IcebergTheme.mintBlue.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          _categoryLabel(product),
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 4),
+            // Compact actions: toggle + popup menu
+            Switch(
+              value: product.isAvailable,
+              onChanged: (_) => ref
+                  .read(productRepositoryProvider.notifier)
+                  .toggleAvailability(product.id),
+              activeTrackColor: IcebergTheme.vibrantRosePink,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              iconSize: 20,
+              icon: const Icon(Icons.more_vert, size: 20),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showProductForm(context, ref, product: product);
+                } else if (value == 'delete') {
+                  _confirmDelete(context, ref, product);
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, size: 18),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline,
+                          size: 18, color: Colors.red.shade400),
+                      const SizedBox(width: 8),
+                      Text('Delete',
+                          style: TextStyle(color: Colors.red.shade400)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // Desktop / Tablet: full ListTile with all info visible
+  // ===========================================================================
+  Widget _buildDesktopProductTile(
     BuildContext context,
     WidgetRef ref,
     Product product,
@@ -190,7 +337,10 @@ class _ProductManagementContentState
           decoration: product.isAvailable ? null : TextDecoration.lineThrough,
         ),
       ),
-      subtitle: Row(
+      subtitle: Wrap(
+        spacing: 12,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
             formatCurrency(product.price),
@@ -199,7 +349,6 @@ class _ProductManagementContentState
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
@@ -211,7 +360,6 @@ class _ProductManagementContentState
               style: const TextStyle(fontSize: 11),
             ),
           ),
-          const SizedBox(width: 8),
           Text(
             'Cost: ${formatCurrency(product.cost)}',
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600),

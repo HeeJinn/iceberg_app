@@ -20,7 +20,10 @@ class OrderDetailDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
+        constraints: BoxConstraints(
+          maxWidth: 480,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -55,9 +58,8 @@ class OrderDetailDialog extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 8),
 
-              // Items
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 300),
+              // Items — scrollable
+              Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: order.items.length,

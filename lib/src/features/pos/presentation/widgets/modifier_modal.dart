@@ -87,6 +87,7 @@ class _ModifierModalState extends ConsumerState<ModifierModal> {
   Widget build(BuildContext context) {
     final vessels = ref.watch(vesselOptionsRepositoryProvider);
     final flavors = ref.watch(flavorOptionsRepositoryProvider);
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     // Auto-select first vessel if none selected yet
     if (_selectedVesselName == null && vessels.isNotEmpty) {
@@ -94,110 +95,127 @@ class _ModifierModalState extends ConsumerState<ModifierModal> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       decoration: const BoxDecoration(
         color: IcebergTheme.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.product.title,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Text(
-                  formatCurrency(widget.product.price),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: IcebergTheme.vibrantRosePink,
-                  ),
-                ),
-              ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
             ),
-            const SizedBox(height: 24),
-
-            // ---- Vessel Selection ----
-            Text(
-              '1. Choose Vessel',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            if (vessels.isEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
-                    const SizedBox(width: 8),
-                    Text(
-                      'No vessel options configured',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: vessels.map((vessel) {
-                  final isSelected = _selectedVesselName == vessel.name;
-                  return ChoiceChip(
-                    label: Text(vessel.displayLabel),
-                    selected: isSelected,
-                    selectedColor: IcebergTheme.mintBlueDark,
-                    onSelected: (val) {
-                      if (val) setState(() => _selectedVesselName = vessel.name);
-                    },
-                  );
-                }).toList(),
+          ),
+          // Scrollable content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 12,
+                bottom: bottomInset + 8,
               ),
-            const SizedBox(height: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.product.title,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        formatCurrency(widget.product.price),
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: IcebergTheme.vibrantRosePink,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
-            // ---- Flavor Selection ----
-            Text(
-              '2. Scoops & Flavors',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            if (flavors.isEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
-                    const SizedBox(width: 8),
-                    Text(
-                      'No flavor options configured',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  // ---- Vessel Selection ----
+                  Text(
+                    '1. Choose Vessel',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  if (vessels.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
+                          const SizedBox(width: 8),
+                          Text(
+                            'No vessel options configured',
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: vessels.map((vessel) {
+                        final isSelected = _selectedVesselName == vessel.name;
+                        return ChoiceChip(
+                          label: Text(vessel.displayLabel),
+                          selected: isSelected,
+                          selectedColor: IcebergTheme.mintBlueDark,
+                          onSelected: (val) {
+                            if (val) setState(() => _selectedVesselName = vessel.name);
+                          },
+                        );
+                      }).toList(),
                     ),
-                  ],
-                ),
-              )
-            else
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.3,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: flavors.map((flavor) {
+                  const SizedBox(height: 24),
+
+                  // ---- Flavor Selection ----
+                  Text(
+                    '2. Scoops & Flavors',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  if (flavors.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
+                          const SizedBox(width: 8),
+                          Text(
+                            'No flavor options configured',
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ...flavors.map((flavor) {
                       final count = _modifiers[flavor.name] ?? 0;
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -235,49 +253,54 @@ class _ModifierModalState extends ConsumerState<ModifierModal> {
                           ],
                         ),
                       );
-                    }).toList(),
-                  ),
-                ),
-              ),
+                    }),
 
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle, size: 32),
-                      color: IcebergTheme.darkSlate,
-                      onPressed: () {
-                        if (_quantity > 1) setState(() => _quantity--);
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Qty: $_quantity',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(height: 24),
+
+                  // Qty + Add to Order
+                  SafeArea(
+                    top: false,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle, size: 32),
+                              color: IcebergTheme.darkSlate,
+                              onPressed: () {
+                                if (_quantity > 1) setState(() => _quantity--);
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'Qty: $_quantity',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle, size: 32),
+                              color: IcebergTheme.vibrantRosePink,
+                              onPressed: () => setState(() => _quantity++),
+                            ),
+                          ],
                         ),
-                      ),
+                        ElevatedButton(
+                          onPressed: _submit,
+                          child: const Text('Add to Order'),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle, size: 32),
-                      color: IcebergTheme.vibrantRosePink,
-                      onPressed: () => setState(() => _quantity++),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Add to Order'),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -166,14 +166,18 @@ class AdminOverviewContent extends ConsumerWidget {
     ];
 
     if (isMobile) {
+      // Use adaptive aspect ratio based on screen width
+      final screenWidth = MediaQuery.sizeOf(context).width;
+      final aspectRatio = screenWidth <= 360 ? 1.0 : 1.2;
+
       return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.3,
-        children: cards.map((c) => _buildStatCard(c)).toList(),
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: aspectRatio,
+        children: cards.map((c) => _buildStatCard(c, isMobile: true)).toList(),
       );
     }
 
@@ -183,7 +187,7 @@ class AdminOverviewContent extends ConsumerWidget {
             (c) => Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: _buildStatCard(c),
+                child: _buildStatCard(c, isMobile: false),
               ),
             ),
           )
@@ -191,32 +195,49 @@ class AdminOverviewContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(_StatInfo info) {
+  Widget _buildStatCard(_StatInfo info, {required bool isMobile}) {
+    final double padding = isMobile ? 14.0 : 20.0;
+    final double iconSize = isMobile ? 20.0 : 24.0;
+    final double iconPadding = isMobile ? 8.0 : 10.0;
+    final double gap = isMobile ? 8.0 : 12.0;
+    final double titleSize = isMobile ? 12.0 : 13.0;
+    final double valueSize = isMobile ? 18.0 : 22.0;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(iconPadding),
               decoration: BoxDecoration(
                 color: info.color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(info.icon, color: info.color, size: 24),
+              child: Icon(info.icon, color: info.color, size: iconSize),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: gap),
             Text(
               info.title,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: titleSize, color: Colors.grey.shade600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
-            Text(
-              info.value,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  info.value,
+                  style: TextStyle(
+                    fontSize: valueSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

@@ -12,6 +12,10 @@ class ResponsiveLayout extends StatelessWidget {
     required this.desktop,
   });
 
+  // ── Breakpoints ──
+  static bool isSmallPhone(BuildContext context) =>
+      MediaQuery.sizeOf(context).width <= 360;
+
   static bool isMobile(BuildContext context) =>
       MediaQuery.sizeOf(context).width <= 768;
 
@@ -21,6 +25,22 @@ class ResponsiveLayout extends StatelessWidget {
 
   static bool isDesktop(BuildContext context) =>
       MediaQuery.sizeOf(context).width > 1200;
+
+  /// Returns a value based on the current screen size.
+  /// Useful for adaptive padding, font sizes, aspect ratios, etc.
+  static T responsiveValue<T>(
+    BuildContext context, {
+    required T mobile,
+    T? tablet,
+    T? desktop,
+    T? smallPhone,
+  }) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width <= 360 && smallPhone != null) return smallPhone;
+    if (width <= 768) return mobile;
+    if (width <= 1200) return tablet ?? desktop ?? mobile;
+    return desktop ?? mobile;
+  }
 
   @override
   Widget build(BuildContext context) {

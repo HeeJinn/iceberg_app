@@ -317,9 +317,15 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                     crossAxisCount: isMobile
                         ? 2
                         : (ResponsiveLayout.isTablet(context) ? 3 : 4),
-                    childAspectRatio: isMobile ? 0.75 : 0.85,
-                    crossAxisSpacing: isMobile ? 12 : 16,
-                    mainAxisSpacing: isMobile ? 12 : 16,
+                    childAspectRatio: ResponsiveLayout.responsiveValue(
+                      context,
+                      smallPhone: 0.7,
+                      mobile: 0.75,
+                      tablet: 0.8,
+                      desktop: 0.85,
+                    ),
+                    crossAxisSpacing: isMobile ? 10 : 16,
+                    mainAxisSpacing: isMobile ? 10 : 16,
                   ),
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
@@ -626,17 +632,14 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final staffName = auth?.name ?? '';
     Order? completedOrder;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => PaymentDialog(
-        totalAmount: cart.totalPrice,
-        onConfirm: (paymentMethod) async {
-          completedOrder = await ref
-              .read(cartControllerProvider.notifier)
-              .checkout(paymentMethod, staffId);
-        },
-      ),
+    PaymentDialog.show(
+      context,
+      totalAmount: cart.totalPrice,
+      onConfirm: (paymentMethod) async {
+        completedOrder = await ref
+            .read(cartControllerProvider.notifier)
+            .checkout(paymentMethod, staffId);
+      },
     ).then((_) {
       // Payment dialog has closed (after success animation)
       if (!mounted || completedOrder == null) return;

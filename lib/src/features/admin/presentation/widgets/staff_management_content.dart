@@ -50,71 +50,178 @@ class _StaffManagementContentState
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final staff = staffList[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: staff.isAdmin
-                            ? IcebergTheme.vibrantRosePink.withValues(alpha: 0.15)
-                            : IcebergTheme.mintBlue.withValues(alpha: 0.5),
-                        child: Icon(
-                          staff.isAdmin
-                              ? Icons.admin_panel_settings
-                              : Icons.person,
-                          color: staff.isAdmin
-                              ? IcebergTheme.vibrantRosePink
-                              : IcebergTheme.darkSlate,
-                        ),
-                      ),
-                      title: Text(staff.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            decoration: staff.isActive
-                                ? null
-                                : TextDecoration.lineThrough,
-                          )),
-                      subtitle: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: staff.isAdmin
-                                  ? IcebergTheme.creamPink
-                                  : IcebergTheme.mintBlue,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              staff.isAdmin ? 'Admin' : 'Cashier',
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text('PIN: ••••',
-                              style:
-                                  TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Switch(
-                            value: staff.isActive,
-                            onChanged: (_) =>
-                                ref.read(staffRepositoryProvider.notifier)
-                                    .toggleActive(staff.id),
-                            activeTrackColor: IcebergTheme.vibrantRosePink,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 20),
-                            onPressed: () =>
-                                _showStaffForm(context, ref, staff: staff),
-                          ),
-                        ],
-                      ),
-                    );
+                    if (isMobile) {
+                      return _buildMobileStaffTile(staff);
+                    }
+                    return _buildDesktopStaffTile(staff);
                   },
                 ),
         ),
       ],
+    );
+  }
+
+  // ===========================================================================
+  // Mobile: compact layout with PopupMenu instead of trailing row
+  // ===========================================================================
+  Widget _buildMobileStaffTile(StaffMember staff) {
+    return InkWell(
+      onTap: () => _showStaffForm(context, ref, staff: staff),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: staff.isAdmin
+                  ? IcebergTheme.vibrantRosePink.withValues(alpha: 0.15)
+                  : IcebergTheme.mintBlue.withValues(alpha: 0.5),
+              child: Icon(
+                staff.isAdmin ? Icons.admin_panel_settings : Icons.person,
+                size: 20,
+                color: staff.isAdmin
+                    ? IcebergTheme.vibrantRosePink
+                    : IcebergTheme.darkSlate,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    staff.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      decoration:
+                          staff.isActive ? null : TextDecoration.lineThrough,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: staff.isAdmin
+                              ? IcebergTheme.creamPink
+                              : IcebergTheme.mintBlue,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          staff.isAdmin ? 'Admin' : 'Cashier',
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                      Text('PIN: ••••',
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 11)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: staff.isActive,
+              onChanged: (_) => ref
+                  .read(staffRepositoryProvider.notifier)
+                  .toggleActive(staff.id),
+              activeTrackColor: IcebergTheme.vibrantRosePink,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              iconSize: 20,
+              icon: const Icon(Icons.more_vert, size: 20),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showStaffForm(context, ref, staff: staff);
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, size: 18),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // Desktop / Tablet: full ListTile with trailing row
+  // ===========================================================================
+  Widget _buildDesktopStaffTile(StaffMember staff) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: staff.isAdmin
+            ? IcebergTheme.vibrantRosePink.withValues(alpha: 0.15)
+            : IcebergTheme.mintBlue.withValues(alpha: 0.5),
+        child: Icon(
+          staff.isAdmin ? Icons.admin_panel_settings : Icons.person,
+          color: staff.isAdmin
+              ? IcebergTheme.vibrantRosePink
+              : IcebergTheme.darkSlate,
+        ),
+      ),
+      title: Text(staff.name,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            decoration: staff.isActive ? null : TextDecoration.lineThrough,
+          )),
+      subtitle: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: staff.isAdmin
+                  ? IcebergTheme.creamPink
+                  : IcebergTheme.mintBlue,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              staff.isAdmin ? 'Admin' : 'Cashier',
+              style: const TextStyle(fontSize: 11),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text('PIN: ••••',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Switch(
+            value: staff.isActive,
+            onChanged: (_) => ref
+                .read(staffRepositoryProvider.notifier)
+                .toggleActive(staff.id),
+            activeTrackColor: IcebergTheme.vibrantRosePink,
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, size: 20),
+            onPressed: () => _showStaffForm(context, ref, staff: staff),
+          ),
+        ],
+      ),
     );
   }
 
@@ -132,46 +239,48 @@ class _StaffManagementContentState
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24)),
             title: Text(staff == null ? 'Add Staff' : 'Edit Staff'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    prefixIcon: Icon(Icons.person_outline),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: pinCtrl,
-                  decoration: const InputDecoration(
-                    labelText: '4-Digit PIN',
-                    prefixIcon: Icon(Icons.pin),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: pinCtrl,
+                    decoration: const InputDecoration(
+                      labelText: '4-Digit PIN',
+                      prefixIcon: Icon(Icons.pin),
+                    ),
+                    keyboardType: TextInputType.number,
+                    maxLength: 4,
+                    obscureText: true,
                   ),
-                  keyboardType: TextInputType.number,
-                  maxLength: 4,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<StaffRole>(
-                  initialValue: role,
-                  decoration: const InputDecoration(
-                    labelText: 'Role',
-                    prefixIcon: Icon(Icons.work_outline),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<StaffRole>(
+                    initialValue: role,
+                    decoration: const InputDecoration(
+                      labelText: 'Role',
+                      prefixIcon: Icon(Icons.work_outline),
+                    ),
+                    items: StaffRole.values
+                        .map((r) => DropdownMenuItem(
+                              value: r,
+                              child: Text(
+                                  r == StaffRole.admin ? 'Admin' : 'Cashier'),
+                            ))
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) setDialogState(() => role = v);
+                    },
                   ),
-                  items: StaffRole.values
-                      .map((r) => DropdownMenuItem(
-                            value: r,
-                            child: Text(
-                                r == StaffRole.admin ? 'Admin' : 'Cashier'),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setDialogState(() => role = v);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
